@@ -3,6 +3,8 @@ package com.github.florent37.assets_audio_player.notification
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -12,22 +14,19 @@ import android.media.MediaMetadata
 import android.os.Build
 import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.support.v4.media.session.PlaybackStateCompat.ACTION_SEEK_TO
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.session.MediaButtonReceiver
+import com.github.florent37.assets_audio_player.AssetsAudioPlayerPlugin
+import com.github.florent37.assets_audio_player.R
 import com.google.android.exoplayer2.C
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-import android.app.PendingIntent.FLAG_UPDATE_CURRENT
-import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.support.v4.media.session.MediaSessionCompat
-import androidx.annotation.RequiresApi
-import com.github.florent37.assets_audio_player.AssetsAudioPlayerPlugin
-import com.github.florent37.assets_audio_player.R
 
 class NotificationService : Service() {
 
@@ -138,6 +137,15 @@ class NotificationService : Service() {
                 .setAction(forAction)
                 .putExtra(EXTRA_PLAYER_ID, forPlayer)
                 .putExtra(TRACK_ID, audioMetas.trackID)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.CUPCAKE)
+    private fun createLaunchIntent(forAction: String, forPlayer: String, audioMetas: AudioMetas): Intent {
+
+        return packageManager.getLaunchIntentForPackage(packageName)!!
+            .setAction(forAction)
+            .putExtra(EXTRA_PLAYER_ID, forPlayer)
+            .putExtra(TRACK_ID, audioMetas.trackID)
     }
 
     @RequiresApi(Build.VERSION_CODES.ECLAIR)
@@ -337,8 +345,8 @@ class NotificationService : Service() {
                         it.setSubText(action.audioMetas.album)
                     }
                 }
-                .setContentIntent(PendingIntent.getBroadcast(this, 0,
-                        createReturnIntent(forAction = NotificationAction.ACTION_SELECT, forPlayer = action.playerId, audioMetas = action.audioMetas), FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT))
+                .setContentIntent(PendingIntent.getActivity(this, NOTIFICATION_ID,
+                        createLaunchIntent(forAction = NotificationAction.ACTION_SELECT, forPlayer = action.playerId, audioMetas = action.audioMetas), FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT))
                 .also {
                     if (bitmap != null) {
                         it.setLargeIcon(bitmap)

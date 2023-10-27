@@ -1,11 +1,15 @@
 package com.github.florent37.assets_audio_player.notification
 
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.github.florent37.assets_audio_player.AssetsAudioPlayerPlugin
 
 class NotificationActionReceiver : BroadcastReceiver() {
+    @RequiresApi(Build.VERSION_CODES.CUPCAKE)
     override fun onReceive(context: Context, intent: Intent) {
         val playerId = intent.getStringExtra(NotificationService.EXTRA_PLAYER_ID) ?: return
         val trackID = if (intent.getStringExtra(NotificationService.TRACK_ID) == null) "" else intent.getStringExtra(NotificationService.TRACK_ID)
@@ -25,7 +29,8 @@ class NotificationActionReceiver : BroadcastReceiver() {
                 //NotificationManager(context).showNotification(playerId= playerId, audioMetas = notificationAction.audioMetas, isPlaying = player.)
             }
             NotificationAction.ACTION_SELECT -> {
-                var intent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!;  
+                var intent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!
+                intent.action = NotificationAction.ACTION_SELECT
                  intent.apply {
                      putExtra(NotificationService.EXTRA_PLAYER_ID, playerId)
                      putExtra(NotificationService.TRACK_ID, trackID)
