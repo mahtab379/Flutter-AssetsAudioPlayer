@@ -16,6 +16,7 @@ import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -141,7 +142,7 @@ class NotificationService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.CUPCAKE)
     private fun createLaunchIntent(forAction: String, forPlayer: String, audioMetas: AudioMetas): Intent {
-
+        Log.e("ASSET_AUDIO", "package >> $packageName")
         return packageManager.getLaunchIntentForPackage(packageName)!!
             .setAction(forAction)
             .putExtra(EXTRA_PLAYER_ID, forPlayer)
